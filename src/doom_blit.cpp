@@ -84,13 +84,56 @@ int host_gpio_get(int pin) {
 void doom_buttons_init(void) {}
 int doom_buttons_menu_pressed(void) { return host_gpio_get(26) == 0; }
 
-// --- audio (not wired up yet) --------------------------------------------
+// --- audio ---------------------------------------------------------------
 
+// The port's PWM driver hooks. Unused here: the 32blit mixer pulls samples
+// through I_PicoSoundMix() instead (see doom_audio_callback below).
 void doom_audio_pwm_init(void) {}
 void doom_audio_pwm_push(const int16_t *, int) {}
-int doom_audio_pwm_room(void) { return 4096; }
+int doom_audio_pwm_room(void) { return 0; }
+
+void I_PicoSoundMix(int16_t *out, int n);
 
 } // extern "C"
+
+// Doom mixes effects and OPL music at 49716 Hz; 32blit plays 22050 Hz and
+// asks for 64 samples at a time. Each output sample is the average of the
+// two or three Doom samples it covers, which also filters out most of the
+// aliasing. This runs on the SDK's audio thread (SDL) or core 1 (console).
+static constexpr uint32_t doom_sample_rate = 49716;
+static constexpr uint32_t audio_step = (uint64_t(doom_sample_rate) << 16) / blit::sample_rate;
+
+static int16_t mix_buf[128];
+static int mix_pos = 128;
+static uint32_t mix_frac;
+
+static int16_t next_doom_sample() {
+    if (mix_pos == 128) {
+        I_PicoSoundMix(mix_buf, 128);
+        mix_pos = 0;
+    }
+    return mix_buf[mix_pos++];
+}
+
+static void doom_audio_callback(AudioChannel &channel) {
+    for (auto &out : channel.wave_buffer) {
+        mix_frac += audio_step;
+        int n = mix_frac >> 16;
+        mix_frac &= 0xffff;
+        int32_t sum = 0;
+        for (int i = 0; i < n; i++)
+            sum += next_doom_sample();
+        out = sum / n;
+    }
+}
+
+static void start_audio() {
+    auto &ch = channels[0];
+    ch.waveforms = Waveform::WAVE;
+    ch.wave_buffer_callback = doom_audio_callback;
+    ch.volume = 0xffff;
+    ch.trigger_sustain();
+}
 
 // A build without game data embeds a placeholder instead of a WHD blob
 // (see CMakeLists.txt), so it still compiles and starts.
@@ -108,8 +151,10 @@ void init() {
 #endif
     set_screen_mode(ScreenMode::hires);
 
-    if (have_wad())
+    if (have_wad()) {
         D_DoomMain();
+        start_audio();
+    }
 }
 
 void update(uint32_t) {

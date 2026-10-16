@@ -3,8 +3,9 @@
 Doom for the ChiliChip VGC Zero (RP2350, 128x128 OLED), built on the
 [32blit SDK](https://github.com/chili-chip/32blit-sdk) like every other ChiliChip game.
 
-Status: the desktop build plays shareware Doom at the console's native 128x128. The console
-(`vgc-blit`) build compiles and fits in RAM; it has not been tried on hardware yet. No sound yet.
+Status: shareware Doom plays at the console's native 128x128 on desktop and on the VGC Zero
+(`vgc-blit`), with sound effects and OPL music. Setting music volume to 0 in the in-game menu
+turns the music synth off to save CPU.
 
 ## Bring your own WAD
 
