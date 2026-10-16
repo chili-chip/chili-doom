@@ -29,7 +29,7 @@
                 "PICO_PLATFORM": "rp2350-arm-s",
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/../32blit-sdk/pico2.toolchain",
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_ASM_COMPILER": "/usr/bin/arm-none-eabi-gcc",
                 "BLIT_EXECUTABLE_PICO_BLIT": "1"
             }

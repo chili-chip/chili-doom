@@ -29,8 +29,13 @@ jobs:
             cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk
             apt-packages: libsdl2-dev libsdl2-image-dev libsdl2-net-dev python3-setuptools
 
-          # The console (VGC) and web builds come back once the engine
-          # compiles for them; see README.md.
+          - os: ubuntu-22.04
+            name: VGC (.blit)
+            release-suffix: VGC-BLIT
+            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk -DPICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk -DPICO_BOARD=chilichip_vgc -DPICO_PLATFORM=rp2350-arm-s -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/32blit-sdk/pico2.toolchain -DBLIT_EXECUTABLE_PICO_BLIT=1
+            apt-packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib python3-setuptools
+
+          # The web build comes back once the engine compiles for it; see README.md.
 
     runs-on: ${{matrix.os}}
 

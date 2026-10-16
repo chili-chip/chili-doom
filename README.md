@@ -3,8 +3,8 @@
 Doom for the ChiliChip VGC Zero (RP2350, 128x128 OLED), built on the
 [32blit SDK](https://github.com/chili-chip/32blit-sdk) like every other ChiliChip game.
 
-Status: the desktop build plays the shareware demo loop at the console's native 128x128.
-The console (`vgc-blit`) build does not compile yet; that is the next milestone.
+Status: the desktop build plays shareware Doom at the console's native 128x128. The console
+(`vgc-blit`) build compiles and fits in RAM; it has not been tried on hardware yet. No sound yet.
 
 ## Bring your own WAD
 
@@ -31,6 +31,23 @@ cmake --preset linux
 cmake --build out/build/linux
 ./out/build/linux/chili-doom.elf
 ```
+
+## Building for the VGC Zero
+
+Check out [32blit-sdk](https://github.com/chili-chip/32blit-sdk) and
+[pico-sdk](https://github.com/chili-chip/pico-sdk) next to this repo, make `data/doom1.whd` as above, then:
+
+```
+cmake --preset vgc-blit
+cmake --build out/build/vgc-blit
+```
+
+Copy `out/build/vgc-blit/chili-doom.blit` onto the console's **CHILICHIP** drive to install it.
+A `.blit` built with your WAD contains id Software's game data: keep it to yourself.
+
+RAM is the tight part: games get 448 KB and Doom uses almost all of it. To make room, the
+screen shows Doom's 128x128 frame directly instead of a copy (see `init()` in
+`src/doom_blit.cpp`), and the screen-melt snapshot doubles as the menu backdrop.
 
 Controls: arrows move and turn, A fires, B uses, Y and X strafe, MENU opens the Doom menu.
 On a keyboard: Z = A, X = B, C = X, V = Y, Esc = MENU (the 32blit SDL defaults).

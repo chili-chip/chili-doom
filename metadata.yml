@@ -4,3 +4,7 @@ author: ChiliChip
 version: v0.0.1
 category: game
 url: https://github.com/chili-chip/chili-doom
+icon:
+  file: assets/icon.png
+splash:
+  file: assets/splash.png
