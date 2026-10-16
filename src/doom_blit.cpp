@@ -6,6 +6,7 @@
 // the game loop would start (see CHILI_BLIT in d_main.c), update() runs one
 // Doom frame per 35 Hz tic, and render() copies the finished 128x128 RGB565
 // frame onto the screen.
+#include <algorithm>
 #include <cstring>
 
 #include "32blit.hpp"
@@ -22,7 +23,6 @@ void hard_assert(int) {}
 
 void D_DoomMain(void);
 void D_RunFrame(void);
-int I_GetTime(void);
 
 extern const uint8_t doom1_whd_data[];
 extern const uint32_t doom1_whd_data_size;
@@ -103,13 +103,10 @@ void update(uint32_t) {
     if (!have_wad())
         return;
 
-    // Run Doom once per 35 Hz tic, so TryRunTics() never has to wait for one.
-    static int last_tic = -1;
-    int tic = I_GetTime();
-    if (tic != last_tic) {
-        last_tic = tic;
-        D_RunFrame();
-    }
+    // Doom runs at 35 tics a second. With CHILI_BLIT, D_RunFrame() returns
+    // straight away when no tic is due instead of waiting for one, so the
+    // SDK keeps reading input and drawing while Doom catches up.
+    D_RunFrame();
 }
 
 void render(uint32_t) {
@@ -124,19 +121,22 @@ void render(uint32_t) {
     if (!frame_ready)
         return;
 
-    // Centre the 128x128 frame: the console screen is exactly that size,
-    // desktop and web screens are larger.
-    int ox = (screen.bounds.w - 128) / 2;
-    int oy = (screen.bounds.h - 128) / 2;
+    // The console screen is exactly 128x128. Desktop and web screens are
+    // larger, so scale the frame up to the screen height and centre it.
+    int size = std::min(screen.bounds.w, screen.bounds.h);
 
-    if (screen.format == PixelFormat::RGB565 && ox == 0 && oy == 0) {
+    if (screen.format == PixelFormat::RGB565 && size == 128 && screen.bounds.w == 128) {
         memcpy(screen.data, g_fb, sizeof(g_fb));
         return;
     }
 
-    for (int y = 0; y < 128; y++) {
-        for (int x = 0; x < 128; x++) {
-            uint16_t c = g_fb[y * 128 + x];
+    int ox = (screen.bounds.w - size) / 2;
+    int oy = (screen.bounds.h - size) / 2;
+
+    for (int y = 0; y < size; y++) {
+        const uint16_t *row = g_fb + (y * 128 / size) * 128;
+        for (int x = 0; x < size; x++) {
+            uint16_t c = row[x * 128 / size];
             screen.pen = Pen((c >> 11) << 3, ((c >> 5) & 0x3f) << 2, (c & 0x1f) << 3);
             screen.pixel(Point(ox + x, oy + y));
         }

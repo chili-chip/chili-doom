@@ -513,6 +513,14 @@ void D_RunFrame()
 #endif
 
     TryRunTics (); // will run at least one tic
+#if CHILI_BLIT
+    {
+        // chili-doom: no tic was due yet, so there is nothing new to draw.
+        extern boolean tryruntics_idle;
+        if (tryruntics_idle)
+            return;
+    }
+#endif
 
 #if THUMBY_NATIVE
     { extern void overlay_menu_flush_settings(void); overlay_menu_flush_settings(); }
@@ -554,7 +562,13 @@ void D_RunFrame()
             I_FinishUpdate();   /* presents with melt composite if active */
 
             /* Keep the game ticking while the melt plays out. */
+#if CHILI_BLIT
+            /* chili-doom: later D_RunFrame() calls advance the melt one
+             * tic at a time instead of looping here. */
+            while (0) {
+#else
             while (thumby_melt_is_active()) {
+#endif
                 I_StartFrame();
                 TryRunTics();
                 S_UpdateSounds(players[consoleplayer].mo);

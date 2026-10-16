@@ -595,6 +595,10 @@ static void SinglePlayerClear(ticcmd_set_t *set) {
 // TryRunTics
 //
 
+#if CHILI_BLIT
+boolean tryruntics_idle;
+#endif
+
 void TryRunTics(void) {
     int i;
     int lowtic;
@@ -606,6 +610,9 @@ void TryRunTics(void) {
 
 #if PICO_BUILD
     DEBUG_PINS_SET(tics, 2);
+#endif
+#if CHILI_BLIT
+    tryruntics_idle = false;
 #endif
     // get real tics
     entertic = I_GetTime() / ticdup;
@@ -667,6 +674,12 @@ void TryRunTics(void) {
                 return;
             }
 
+#if CHILI_BLIT
+            // chili-doom: never block the 32blit main loop waiting for a
+            // tic; D_RunFrame() skips this frame and update() calls again.
+            tryruntics_idle = true;
+            return;
+#endif
             I_Sleep(1);
         }
     }
