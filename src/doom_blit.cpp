@@ -10,16 +10,19 @@
 #include <cstring>
 
 #include "32blit.hpp"
+#if PICO_ON_DEVICE
+#include "engine/api_private.hpp" // blit::api.set_framebuffer
+#endif
 
 using namespace blit;
 
 extern "C" {
 
 // The engine draws every finished frame into this buffer (ThumbyDOOM port/i_video_thumby.c).
-uint16_t g_fb[128 * 128];
+// On the console it is also the screen itself (see init()).
+alignas(4) uint16_t g_fb[128 * 128];
 
 int boot_active = 0;
-void hard_assert(int) {}
 
 void D_DoomMain(void);
 void D_RunFrame(void);
@@ -29,7 +32,10 @@ extern const uint32_t doom1_whd_data_size;
 
 // --- time ----------------------------------------------------------------
 
-// blit::now_us() wraps every ~71 minutes; Doom wants a 64-bit clock.
+// On the console the pico SDK already provides time_us_64(). Elsewhere,
+// build it from blit::now_us(), which wraps every ~71 minutes.
+uint64_t time_us_64(void);
+#if !PICO_ON_DEVICE
 uint64_t time_us_64(void) {
     static uint32_t last;
     static uint64_t high;
@@ -39,6 +45,7 @@ uint64_t time_us_64(void) {
     last = now;
     return high | now;
 }
+#endif
 
 void chili_sleep_us(uint64_t us) {
     uint64_t end = time_us_64() + us;
@@ -93,6 +100,12 @@ static bool have_wad() {
 }
 
 void init() {
+#if PICO_ON_DEVICE
+    // RAM is tight on the console, so instead of copying each frame into the
+    // SDK's framebuffer, hand it Doom's: the screen shows g_fb directly
+    // (single-buffered). CMakeLists.txt shrinks the SDK's own buffer to match.
+    blit::api.set_framebuffer(reinterpret_cast<uint8_t *>(g_fb), sizeof(g_fb), Size(128, 128));
+#endif
     set_screen_mode(ScreenMode::hires);
 
     if (have_wad())
@@ -118,7 +131,8 @@ void render(uint32_t) {
         return;
     }
 
-    if (!frame_ready)
+    // On the console the screen already is g_fb.
+    if (!frame_ready || screen.data == reinterpret_cast<uint8_t *>(g_fb))
         return;
 
     // The console screen is exactly 128x128. Desktop and web screens are

@@ -89,6 +89,7 @@ add_library(doom_engine STATIC
   ${PORT}/w_file_thumby.c
   ${PORT}/thumby_hud.c
   ${PORT}/doom1_whd.S
+  src/doom_stubs.c
 )
 
 # The pico SDK stand-ins must win over any real SDK headers.
@@ -131,6 +132,11 @@ target_compile_definitions(doom_engine PRIVATE
   USE_MEMORY_WAD=1 NO_IERROR=1 NO_USE_ENDDOOM=1
 
   SCREENWIDTH=128 SCREENHEIGHT=128 MAIN_VIEWHEIGHT=112 THUMBY_NATIVE=1
+
+  # Doom's zone heap. ThumbyDOOM uses 160 KB; the demo loop peaks at about
+  # 48 KB of non-purgeable blocks, and the console needs the 16 KB this
+  # frees for malloc (OPL music, MIDI tracks, the SDK).
+  THUMBY_ZONE_KB=144
 )
 
 target_compile_options(doom_engine PRIVATE
@@ -148,6 +154,13 @@ find_package (32BLIT CONFIG REQUIRED PATHS ../32blit-sdk $ENV{PATH_32BLIT_SDK})
 blit_executable (${PROJECT_NAME} src/doom_blit.cpp)
 target_link_libraries(${PROJECT_NAME} doom_engine)
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wno-unused-parameter)
+
+if(32BLIT_PICO)
+  # The game hands the SDK its own 128x128 frame as the screen (see init() in
+  # src/doom_blit.cpp), so the SDK's startup framebuffer only has to hold the
+  # small lores screen shown before init(): 16 KB instead of 64 KB.
+  target_compile_definitions(${PROJECT_NAME} PRIVATE ALLOW_HIRES=0)
+endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
