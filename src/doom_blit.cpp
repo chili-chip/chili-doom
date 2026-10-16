@@ -150,8 +150,9 @@ void render(uint32_t) {
     for (int y = 0; y < size; y++) {
         const uint16_t *row = g_fb + (y * 128 / size) * 128;
         for (int x = 0; x < size; x++) {
+            // 32blit's RGB565: red in the low 5 bits, blue in the high 5.
             uint16_t c = row[x * 128 / size];
-            screen.pen = Pen((c >> 11) << 3, ((c >> 5) & 0x3f) << 2, (c & 0x1f) << 3);
+            screen.pen = Pen((c & 0x1f) << 3, ((c >> 5) & 0x3f) << 2, (c >> 11) << 3);
             screen.pixel(Point(ox + x, oy + y));
         }
     }
