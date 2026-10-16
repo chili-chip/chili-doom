@@ -23,12 +23,18 @@ endif()
 
 # --- Doom engine -------------------------------------------------------------
 
-set(VENDOR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/rp2040-doom)
+# Everything below comes from the ThumbyDOOM submodule (chili-chip fork):
+# rp2040-doom, ThumbyDOOM's port/ layer and its host/ pico SDK stand-ins.
+set(THUMBY ${CMAKE_CURRENT_SOURCE_DIR}/vendor/ThumbyDOOM)
+if(NOT EXISTS ${THUMBY}/vendor/rp2040-doom/src/doom/d_main.c)
+  message(FATAL_ERROR "chili-doom: vendor/ThumbyDOOM is empty. Run: git submodule update --init")
+endif()
+set(VENDOR ${THUMBY}/vendor/rp2040-doom)
 set(VSRC   ${VENDOR}/src)
 set(VDOOM  ${VSRC}/doom)
 set(VOPL   ${VENDOR}/opl)
-set(PORT   ${CMAKE_CURRENT_SOURCE_DIR}/port)
-set(SHIM   ${CMAKE_CURRENT_SOURCE_DIR}/shim)
+set(PORT   ${THUMBY}/port)
+set(SHIM   ${THUMBY}/host)
 
 file(GLOB DOOM_GAME_SRC CONFIGURE_DEPENDS ${VDOOM}/*.c)
 
@@ -78,17 +84,17 @@ add_library(doom_engine STATIC
   ${PORT}/i_timer_thumby.c
   ${PORT}/i_input_thumby.c
   ${PORT}/doom_overlay_menu.c
-  ${PORT}/doom_font.c
+  ${THUMBY}/device/doom_font.c
   ${PORT}/stubs_thumby.c
   ${PORT}/w_file_thumby.c
   ${PORT}/thumby_hud.c
   ${PORT}/doom1_whd.S
 )
 
-# The pico SDK stand-ins in shim/ must win over any real SDK headers.
+# The pico SDK stand-ins must win over any real SDK headers.
 target_include_directories(doom_engine BEFORE PRIVATE ${SHIM})
 target_include_directories(doom_engine PRIVATE
-  ${PORT} ${VSRC} ${VDOOM} ${VENDOR}/textscreen ${VOPL} ${VSRC}/adpcm-xq ${VSRC}/whd_gen)
+  ${PORT} ${THUMBY}/device ${VSRC} ${VDOOM} ${VENDOR}/textscreen ${VOPL} ${VSRC}/adpcm-xq ${VSRC}/whd_gen)
 
 set_source_files_properties(${PORT}/doom1_whd.S PROPERTIES COMPILE_FLAGS "-I${WHD_DIR}" OBJECT_DEPENDS "${WHD_DIR}/doom1.whd")
 

@@ -1,0 +1,3 @@
+[submodule "vendor/ThumbyDOOM"]
+	path = vendor/ThumbyDOOM
+	url = https://github.com/chili-chip/ThumbyDOOM

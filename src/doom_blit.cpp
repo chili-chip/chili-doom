@@ -1,5 +1,5 @@
-// chili-doom: glue between the Doom engine (vendor/rp2040-doom + port/) and
-// the 32blit SDK.
+// chili-doom: glue between the Doom engine (rp2040-doom and ThumbyDOOM's
+// port/ layer, from the vendor/ThumbyDOOM submodule) and the 32blit SDK.
 //
 // The engine was written for a bare-metal loop that never returns. Here the
 // SDK owns the loop instead: init() runs D_DoomMain() up to the point where
@@ -15,7 +15,7 @@ using namespace blit;
 
 extern "C" {
 
-// The engine draws every finished frame into this buffer (port/i_video_thumby.c).
+// The engine draws every finished frame into this buffer (ThumbyDOOM port/i_video_thumby.c).
 uint16_t g_fb[128 * 128];
 
 int boot_active = 0;
@@ -56,7 +56,7 @@ void doom_lcd_backlight(int) {}
 
 // --- buttons -------------------------------------------------------------
 
-// Pin numbers the port's input code polls (port/i_input_thumby.c), mapped to
+// Pin numbers the port's input code polls (ThumbyDOOM port/i_input_thumby.c), mapped to
 // the VGC Zero buttons. Returns 0 when held (the port expects active-low pins).
 int host_gpio_get(int pin) {
     uint32_t held = 0;
