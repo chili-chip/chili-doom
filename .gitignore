@@ -1,2 +1,10 @@
 build/
-build.*/
+out/
+build-tools/
+
+# id Software game data: never commit it
+/data/
+*.wad
+*.WAD
+*.whd
+*.whx

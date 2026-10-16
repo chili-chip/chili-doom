@@ -624,6 +624,11 @@ void D_DoomLoop (void)
         wipegamestate = gamestate;
     }
 
+#if CHILI_BLIT
+    // chili-doom: the 32blit SDK owns the main loop and calls D_RunFrame()
+    // from its update callback, so return to the caller instead of looping.
+    return;
+#endif
     while (1)
     {
         D_RunFrame();
