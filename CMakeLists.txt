@@ -86,7 +86,7 @@ add_library(doom_engine STATIC
 )
 
 # The pico SDK stand-ins in shim/ must win over any real SDK headers.
-target_include_directories(doom_engine BEFORE PRIVATE ${SHIM} ${SHIM}/pico ${SHIM}/hardware)
+target_include_directories(doom_engine BEFORE PRIVATE ${SHIM})
 target_include_directories(doom_engine PRIVATE
   ${PORT} ${VSRC} ${VDOOM} ${VENDOR}/textscreen ${VOPL} ${VSRC}/adpcm-xq ${VSRC}/whd_gen)
 

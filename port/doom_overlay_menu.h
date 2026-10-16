@@ -37,4 +37,8 @@ void overlay_menu_render(void);
  * when the menu is active. */
 void overlay_menu_input(uint32_t cur, uint32_t prev);
 
+/* Settings the overlay menu exposes to the rest of the port. */
+int overlay_menu_show_fps(void);
+int overlay_menu_get_controls(void);
+
 #endif

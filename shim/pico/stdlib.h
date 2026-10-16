@@ -3,6 +3,7 @@
 #define _PICO_STDLIB_H
 #include <stdint.h>
 #include <stdbool.h>
+#include "pico/time.h" /* the real pico/stdlib.h pulls this in too */
 /* chili-doom: sleeping goes through the 32blit glue (src/doom_blit.cpp). */
 void chili_sleep_us(uint64_t us);
 static inline void sleep_ms(uint32_t ms) { chili_sleep_us((uint64_t)ms * 1000); }

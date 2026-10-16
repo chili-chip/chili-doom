@@ -17,6 +17,7 @@
 #include "v_video.h"
 #include "m_random.h"
 #include "doom_overlay_menu.h"
+#include "doom_font.h"
 #include "doom/doomdef.h"
 #include "doom/d_player.h"
 #include "doom/doomstat.h"

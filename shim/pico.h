@@ -15,6 +15,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+/* Vendor files lean on the pico SDK headers pulling in <stdlib.h>; GCC 14
+ * makes the resulting implicit malloc/abs declarations an error. */
+#include <stdlib.h>
 #define __aligned(n) __attribute__((aligned(n)))
 #define __packed __attribute__((packed))
 #define __noinline __attribute__((noinline))
@@ -29,6 +32,8 @@
 extern "C" {
 #endif
 static inline int get_core_num(void) { return 0; }
+void hard_assert(int cond);
+void panic_unsupported(void);
 static inline int __mul_instruction(int a, int b) { return a * b; }
 #include <stdio.h>
 __attribute__((noreturn)) static inline void panic(const char *fmt, ...) {
