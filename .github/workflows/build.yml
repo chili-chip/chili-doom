@@ -29,41 +29,8 @@ jobs:
             cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk
             apt-packages: libsdl2-dev libsdl2-image-dev libsdl2-net-dev python3-setuptools
 
-          - os: ubuntu-22.04
-            name: STM32
-            release-suffix: STM32
-            cmake-args: -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/32blit-sdk/32blit.toolchain
-            apt-packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib python3-setuptools
-
-          - os: ubuntu-22.04
-            name: Emscripten
-            release-suffix: WEB
-            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk
-            cmake-prefix: emcmake
-            apt-packages: python3-setuptools
-
-          - os: ubuntu-22.04
-            name: VGC
-            release-suffix: VGC
-            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk -DPICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk -DPICO_BOARD=chilichip_vgc -DPICO_PLATFORM=rp2350-arm-s -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/32blit-sdk/pico2.toolchain
-            apt-packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib python3-setuptools
-
-          - os: ubuntu-22.04
-            name: VGC (.blit)
-            release-suffix: VGC-BLIT
-            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk -DPICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk -DPICO_BOARD=chilichip_vgc -DPICO_PLATFORM=rp2350-arm-s -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/32blit-sdk/pico2.toolchain -DBLIT_EXECUTABLE_PICO_BLIT=1
-            apt-packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib python3-setuptools
-
-          - os: macos-latest
-            name: macOS
-            release-suffix: MACOS
-            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk
-            brew-packages: sdl2 sdl2_image sdl2_net pipx
-
-          - os: windows-latest
-            name: Visual Studio
-            release-suffix: WIN64
-            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          # The console (VGC) and web builds come back once the engine
+          # compiles for them; see README.md.
 
     runs-on: ${{matrix.os}}
 
@@ -75,6 +42,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           path: main
+          submodules: true
 
       - name: Checkout 32Blit API
         uses: actions/checkout@v7
@@ -210,30 +178,3 @@ jobs:
         with:
           name: emscripten-build
           path: ${{runner.workspace}}/main/build
-
-  deploy-pages:
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-
-    permissions:
-      pages: write
-      id-token: write
-
-    steps:
-      - name: Download Emscripten build artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: emscripten-build
-          path: web-build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
-
-      - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: web-build
-
-      - name: Deploy GitHub Pages
-        uses: actions/deploy-pages@v5

@@ -1,10 +1,6 @@
-title: game title
-description: game description
-author: you
-splash:
-  file: assets/no-image.png
-icon:
-  file: assets/no-icon.png
+title: DOOM
+description: Doom for the ChiliChip VGC Zero, built on rp2040-doom and ThumbyDOOM. Bring your own WAD.
+author: ChiliChip
 version: v0.0.1
-category: game # game, demo, utility, ...
-url: https://chili-chip.github.io/game-template/
+category: game
+url: https://github.com/chili-chip/chili-doom
