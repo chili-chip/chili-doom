@@ -1,6 +1,6 @@
 title: DOOM
 description: Doom for the ChiliChip VGC Zero, built on rp2040-doom and ThumbyDOOM. Bring your own WAD.
-author: ChiliChip
+author: id Software, port by ChiliChip
 version: v0.0.1
 category: game
 url: https://github.com/chili-chip/chili-doom

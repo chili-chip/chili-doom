@@ -64,6 +64,18 @@ On a keyboard: Z = A, X = B, C = X, V = Y, Esc = MENU (the 32blit SDL defaults).
 Changes for chili-doom live on the fork and are marked `CHILI_BLIT` or `chili-doom`. The fork is based on ThumbyDOOM `22070a1`
 (rp2040-doom `29a453c`).
 
+## Credits
+
+chili-doom only adds the 32blit layer. The game and the port are other people's work. Thanks to:
+
+| Who | What |
+| --- | --- |
+| [id Software](https://github.com/id-Software/DOOM) | DOOM, and its source code released under the GPL |
+| Simon Howard and the [Chocolate Doom](https://www.chocolate-doom.org/) contributors | The source port rp2040-doom is built on |
+| Graham Sanderson ([kilograham/rp2040-doom](https://github.com/kilograham/rp2040-doom)) | Doom for the RP2040, with the compressed WHD format and the renderer |
+| austinio7116 ([ThumbyDOOM](https://github.com/austinio7116/ThumbyDOOM)) | The 128x128 RP2350 port for the Thumby Color that we build on |
+| Pimoroni and the [32blit](https://github.com/32blit/32blit-sdk) contributors | The 32blit SDK (MIT) |
+
 ## Licence
 
 GPL v2, inherited from Chocolate Doom and rp2040-doom; see `LICENSE`. The 32blit SDK is MIT.
